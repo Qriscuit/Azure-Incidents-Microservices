@@ -3,9 +3,9 @@ spring:
     name: Incident-Consumer
 
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5433/incidentdb
-    username: incidentuser
-    password: incidentpass
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:

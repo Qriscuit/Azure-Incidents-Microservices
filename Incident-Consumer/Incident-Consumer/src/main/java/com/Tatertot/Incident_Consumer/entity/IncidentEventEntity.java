@@ -7,15 +7,25 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "incident_events")
+@Table(
+        name = "incident_events",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "incident_sequence",
+                        columnNames = {"incident_id", "sequence_number"}
+                )
+        }
+)
 public class IncidentEventEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "incident_id", nullable = false)
     private String incidentId;
 
+    @Column(name = "sequence_number", nullable = false)
     private int sequenceNumber;
 
     private String eventType;
