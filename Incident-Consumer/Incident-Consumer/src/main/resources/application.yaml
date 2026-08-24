@@ -12,7 +12,7 @@ spring:
       ddl-auto: update
 
   Kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: incident-consumer-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
