@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: Incident-Consumer
+
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:5433/incidentdb
+    username: incidentuser
+    password: incidentpass
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  Kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: incident-consumer-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      auto-offset-reset: earliest
+
+      properties:
+        "[spring.json.value.default.type]": "com.Tatertot.Incident_Consumer.event.IncidentEvent"
+        "[spring.json.trusted.packages]": "com.Tatertot.Incident_Consumer.event"
+        "[spring.json.use.type.headers]": false
+
+    listener:
+      concurrency: 3
+      ack-mode: record
+
+app:
+  Kafka:
+    incident-topic: incident-events

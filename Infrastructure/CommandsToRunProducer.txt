@@ -1,0 +1,53 @@
+========================================================
+
+Run Batch Function
+
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "http://localhost:8080/api/incidents/batch"
+
+========================================================
+
+Create topic on container
+
+docker exec incident-kafka `
+  /opt/kafka/bin/kafka-topics.sh `
+  --create `
+  --topic incident-events `
+  --bootstrap-server localhost:9092 `
+  --partitions 3 `
+  --replication-factor 1
+
+=========================================================
+
+Ensure incident-events topic exists
+
+docker exec incident-kafka `
+  /opt/kafka/bin/kafka-topics.sh `
+  --describe `
+  --topic incident-events `
+  --bootstrap-server localhost:9092
+
+=========================================================
+
+List of all topics on Kafka
+
+docker exec incident-kafka `
+  /opt/kafka/bin/kafka-topics.sh `
+  --list `
+  --bootstrap-server localhost:9092
+
+=========================================================
+
+Inspect Kafka messages
+
+docker exec -it incident-kafka `
+  /opt/kafka/bin/kafka-console-consumer.sh `
+  --bootstrap-server localhost:9092 `
+  --topic incident-events `
+  --from-beginning `
+  --property print.key=true `
+  --property print.partition=true `
+  --property print.offset=true
+
+==========================================================

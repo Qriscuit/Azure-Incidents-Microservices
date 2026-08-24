@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: Incident-Producer
+  Kafka:
+    bootstrap-server: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+
+      acks: all
+
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+        "[spring.json.add.type.headers]": false
+
+app:
+  Kafka:
+    incident-topic: incident-events
+
+  batch:
+    number-of-incidents: 5
+    events-per-incident: 10

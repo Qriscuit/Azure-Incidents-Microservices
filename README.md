@@ -1,0 +1,1 @@
+the file structure contains two microservices and an infrastructure directory
