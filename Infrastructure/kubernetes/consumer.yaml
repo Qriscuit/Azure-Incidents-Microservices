@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: incident-consumer
+  namespace: incident-system
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: incident-consumer
+
+  template:
+    metadata:
+      labels:
+        app: incident-consumer
+
+    spec:
+      containers:
+        - name: incident-consumer
+
+          image: azureincidentacr1999.azurecr.io/incident-consumer:v2
+
+          env:
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"
+
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_URL
+
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_USERNAME
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_PASSWORD
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

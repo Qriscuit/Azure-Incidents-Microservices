@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: incident-producer
+  namespace: incident-system
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: incident-producer
+
+  template:
+    metadata:
+      labels:
+        app: incident-producer
+
+    spec:
+      containers:
+        - name: incident-producer
+
+          image: azureincidentacr1999.azurecr.io/incident-producer:v1
+
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+---
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: incident-producer
+  namespace: incident-system
+
+spec:
+  selector:
+    app: incident-producer
+
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+
+  type: LoadBalancer

@@ -1,0 +1,7 @@
+$LOCATION = "centralus"
+$RESOURCE_GROUP = "rg-incident-dev"
+$ACR_NAME = "azureincidentacr1999"
+$AKS_NAME = "aks-incident-dev"
+$POSTGRES_SERVER = "incident-pg-1999"
+$POSTGRES_DB = "incidentdb"
+$POSTGRES_ADMIN = "incidentadmin"
