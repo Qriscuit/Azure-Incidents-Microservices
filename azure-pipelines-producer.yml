@@ -43,7 +43,9 @@ stages:
             inputs:
               mavenPOMFile: Incident-Producer/Incident-Producer/pom.xml
               goals: clean package
-
+              javaHomeOption: JDKVersion
+              jdkVersionOption: '1.21'
+              jdkArchitectureOption: x64
 
           - task: AzureCLI@2
             displayName: Build and Push Producer Image
