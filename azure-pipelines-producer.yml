@@ -1,0 +1,99 @@
+trigger:
+  branches:
+    include:
+      - main
+
+  paths:
+    include:
+      - incident-producer/**
+
+
+pool:
+  vmImage: ubuntu-latest
+
+
+variables:
+  acrName: azureincidentacr1999
+  acrLoginServer: azureincidentacr1999.azurecr.io
+  imageRepository: incident-producer
+
+  resourceGroup: rg-incident-dev
+  aksCluster: aks-incident-dev
+  namespace: incident-system
+
+  imageTag: $(Build.BuildId)
+
+
+stages:
+
+  - stage: Build
+    displayName: Build and Push
+
+    jobs:
+      - job: BuildProducer
+
+        steps:
+          - checkout: self
+
+          - task: Maven@4
+            displayName: Test and Package Producer
+
+            inputs:
+              mavenPOMFile: incident-producer/incident-producer/pom.xml
+              goals: clean package
+
+
+          - task: AzureCLI@2
+            displayName: Build and Push Producer Image
+
+            inputs:
+              azureSubscription: incident-azure-connection
+              scriptType: bash
+              scriptLocation: inlineScript
+
+              inlineScript: |
+                az acr login --name $(acrName)
+
+                docker build \
+                  -t $(acrLoginServer)/$(imageRepository):$(imageTag) \
+                  incident-producer/incident-producer
+
+                docker push \
+                  $(acrLoginServer)/$(imageRepository):$(imageTag)
+
+  - stage: Deploy
+    displayName: Deploy Producer to AKS
+
+    dependsOn: Build
+
+    jobs:
+      - deployment: DeployProducer
+
+        environment: incident-dev
+
+        strategy:
+          runOnce:
+            deploy:
+
+              steps:
+                - checkout: self
+
+                - task: KubernetesManifest@1
+                  displayName: Deploy Producer
+
+                  inputs:
+                    action: deploy
+
+                    connectionType: azureResourceManager
+
+                    azureSubscriptionConnection: incident-azure-connection
+                    azureResourceGroup: $(resourceGroup)
+                    kubernetesCluster: $(aksCluster)
+
+                    namespace: $(namespace)
+
+                    manifests: |
+                      Infrastructure/kubernetes/producer.yaml
+
+                    containers: |
+                      $(acrLoginServer)/$(imageRepository):$(imageTag)
