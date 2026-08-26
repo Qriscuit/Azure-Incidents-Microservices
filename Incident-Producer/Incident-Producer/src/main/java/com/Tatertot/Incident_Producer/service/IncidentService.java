@@ -108,7 +108,7 @@ public class IncidentService {
                             Thread.currentThread().interrupt();
 
                             throw new RuntimeException(
-                                    "Thread interrupted while publishing incident event "
+                                    "Thread interrupted while publishing Incident event "
                                     + incidentId, e
                             );
                         }
