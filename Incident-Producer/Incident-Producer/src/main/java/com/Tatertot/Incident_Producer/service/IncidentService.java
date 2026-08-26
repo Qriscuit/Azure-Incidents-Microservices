@@ -62,7 +62,7 @@ public class IncidentService {
         {
             List<Future<?>> tasks = new ArrayList<>();
 
-            for (int incidentNumber = 1; incidentNumber <= numberOfIncidents; incidentNumber++) {
+            for (int incidentNumber = 6; incidentNumber <= numberOfIncidents+5; incidentNumber++) {
 
                 String incidentId = "BATCH-" + batchId + "-INC-" + incidentNumber;
                 final int currentIncidentNumber = incidentNumber;
