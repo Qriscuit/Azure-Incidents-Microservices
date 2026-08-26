@@ -5,7 +5,9 @@ trigger:
 
   paths:
     include:
-      - incident-producer/**
+      - Incident-Producer/**
+      - Infrastructure/kubernetes/producer.yaml
+      - azure-pipelines-producer.yml
 
 
 pool:
@@ -39,7 +41,7 @@ stages:
             displayName: Test and Package Producer
 
             inputs:
-              mavenPOMFile: incident-producer/incident-producer/pom.xml
+              mavenPOMFile: Incident-Producer/Incident-Producer/pom.xml
               goals: clean package
 
 
@@ -56,7 +58,7 @@ stages:
 
                 docker build \
                   -t $(acrLoginServer)/$(imageRepository):$(imageTag) \
-                  incident-producer/incident-producer
+                  Incident-Producer/Incident-Producer
 
                 docker push \
                   $(acrLoginServer)/$(imageRepository):$(imageTag)
