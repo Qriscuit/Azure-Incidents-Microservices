@@ -21,32 +21,8 @@ variables:
 
   imageTag: $(Build.BuildId)
 
-trigger:
-  branches:
-    include:
-      - main
-
-  paths:
-    include:
-      - Incident-Consumer/**
-      - Infrastructure/kubernetes/consumer.yaml
-      - azure-pipelines-consumer.yml
-
-
 pool:
   vmImage: ubuntu-latest
-
-
-variables:
-  acrName: azureincidentacr1999
-  acrLoginServer: azureincidentacr1999.azurecr.io
-  imageRepository: incident-producer
-
-  resourceGroup: rg-incident-dev
-  aksCluster: aks-incident-dev
-  namespace: incident-system
-
-  imageTag: $(Build.BuildId)
 
 
 stages:
@@ -61,7 +37,7 @@ stages:
           - checkout: self
 
           - task: Maven@4
-            displayName: Test and Package Producer
+            displayName: Test and Package Consumer
 
             inputs:
               mavenPOMFile: Incident-Consumer/Incident-Consumer/pom.xml
@@ -71,7 +47,7 @@ stages:
               jdkArchitectureOption: x64
 
           - task: AzureCLI@2
-            displayName: Build and Push Producer Image
+            displayName: Build and Push Consumer Image
 
             inputs:
               azureSubscription: incident-azure-connection
