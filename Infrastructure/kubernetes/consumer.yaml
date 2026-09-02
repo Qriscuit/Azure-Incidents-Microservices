@@ -25,7 +25,19 @@ spec:
 
           env:
             - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
-              value: "kafka:9092"
+              value: "pkc-56d1g.eastus.azure.confluent.cloud:9092"
+              
+            - name: KAFKA_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: confluent-kafka-secret
+                  key: KAFKA_API_KEY
+
+            - name: KAFKA_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: confluent-kafka-secret
+                  key: KAFKA_API_SECRET
 
             - name: DB_URL
               valueFrom:
