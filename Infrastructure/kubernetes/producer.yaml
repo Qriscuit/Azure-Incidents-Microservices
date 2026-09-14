@@ -41,7 +41,25 @@ spec:
                 secretKeyRef:
                   name: confluent-kafka-secret
                   key: KAFKA_API_SECRET
-	
+
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_URL
+
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_USERNAME
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: DB_PASSWORD
+              
           resources:
             requests:
               memory: "256Mi"

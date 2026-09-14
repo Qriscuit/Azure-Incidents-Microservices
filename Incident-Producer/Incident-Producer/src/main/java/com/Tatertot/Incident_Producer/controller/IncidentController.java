@@ -1,6 +1,7 @@
 package com.Tatertot.Incident_Producer.controller;
 
 import com.Tatertot.Incident_Producer.dto.IncidentRequest;
+import com.Tatertot.Incident_Producer.dto.BatchResponse;
 import com.Tatertot.Incident_Producer.event.IncidentEvent;
 import com.Tatertot.Incident_Producer.service.IncidentService;
 import org.springframework.http.ResponseEntity;
@@ -29,10 +30,11 @@ public class IncidentController {
 
     }
 
-    @PostMapping("/batch")
-    public ResponseEntity<String> generateBatch(){
-        int messageCount = incidentService.generateBatchEvents();
-        return ResponseEntity.ok("Generated "+messageCount + " kafka messages");
+    @PostMapping(value = "/batch", produces = "application/json")
+    public ResponseEntity<BatchResponse> generateBatch() {
+        BatchResponse response = incidentService.generateBatchEvents();
+
+        return ResponseEntity.ok(response);
     }
 
 }

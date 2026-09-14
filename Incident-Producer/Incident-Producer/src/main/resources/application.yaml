@@ -23,6 +23,10 @@ spring:
         max.in.flight.requests.per.connection: 5
         "[spring.json.add.type.headers]": false
 
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
 app:
   Kafka:

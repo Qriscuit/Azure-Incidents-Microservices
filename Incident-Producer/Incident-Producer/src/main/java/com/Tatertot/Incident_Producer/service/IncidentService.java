@@ -1,6 +1,8 @@
 package com.Tatertot.Incident_Producer.service;
 
 import com.Tatertot.Incident_Producer.dto.IncidentRequest;
+import com.Tatertot.Incident_Producer.dto.BatchResponse;
+import com.Tatertot.Incident_Producer.repository.IncidentCounterRepository;
 import com.Tatertot.Incident_Producer.dto.Priority;
 import com.Tatertot.Incident_Producer.event.IncidentEvent;
 import com.Tatertot.Incident_Producer.kafka.IncidentEventProducer;
@@ -21,6 +23,7 @@ import java.util.concurrent.Future;
 public class IncidentService {
 
     private final IncidentEventProducer incidentEventProducer;
+    private final IncidentCounterRepository incidentCounterRepository;
 
     @Value("${app.batch.number-of-incidents}")
     int numberOfIncidents;
@@ -28,8 +31,9 @@ public class IncidentService {
     @Value("${app.batch.events-per-incident}")
     int eventsPerIncident;
 
-    public IncidentService(IncidentEventProducer incidentEventProducer) {
+    public IncidentService(IncidentEventProducer incidentEventProducer, IncidentCounterRepository incidentCounterRepository) {
         this.incidentEventProducer = incidentEventProducer;
+        this.incidentCounterRepository = incidentCounterRepository;
     }
 
     public IncidentEvent createIncident(IncidentRequest request){
@@ -52,9 +56,18 @@ public class IncidentService {
         return event;
     }
 
-    public int generateBatchEvents(){
+    public BatchResponse generateBatchEvents(){
+
+        if (numberOfIncidents <= 0 || eventsPerIncident <= 0) {
+            throw new IllegalStateException(
+                    "Batch incident and event counts must be positive"
+            );
+        }
 
         String batchId = UUID.randomUUID().toString().substring(0, 8);
+        long lastIncidentNumber = incidentCounterRepository.reserveRange(numberOfIncidents);
+        long firstIncidentNumber = lastIncidentNumber - numberOfIncidents + 1;
+        List<String> incidentIds = new ArrayList<>(numberOfIncidents);
 
         ExecutorService executor = Executors.newFixedThreadPool(numberOfIncidents);
 
@@ -62,10 +75,13 @@ public class IncidentService {
         {
             List<Future<?>> tasks = new ArrayList<>();
 
-            for (int incidentNumber = 6; incidentNumber <= numberOfIncidents+5; incidentNumber++) {
+            for (int index = 0; index < numberOfIncidents; index++) {
+                final long currentIncidentNumber = firstIncidentNumber + index;
 
-                String incidentId = "BATCH-" + batchId + "-INC-" + incidentNumber;
-                final int currentIncidentNumber = incidentNumber;
+                String incidentId =
+                        "BATCH-" + batchId + "-INC-" + currentIncidentNumber;
+
+                incidentIds.add(incidentId);
 
                 Future<?> task = executor.submit(() -> {
                     for (int seq = 1; seq <= eventsPerIncident; seq++) {
@@ -135,7 +151,15 @@ public class IncidentService {
                 }
             }
 
-            return numberOfIncidents * eventsPerIncident;
+            return new BatchResponse(
+                    batchId,
+                    numberOfIncidents,
+                    eventsPerIncident,
+                    (long) numberOfIncidents * eventsPerIncident,
+                    firstIncidentNumber,
+                    lastIncidentNumber,
+                    List.copyOf(incidentIds)
+            );
 
         } finally {
             executor.shutdown();
