@@ -65,8 +65,8 @@ public class IncidentService {
         }
 
         String batchId = UUID.randomUUID().toString().substring(0, 8);
-        long lastIncidentNumber = incidentCounterRepository.reserveRange(numberOfIncidents);
-        long firstIncidentNumber = lastIncidentNumber - numberOfIncidents + 1;
+        long firstIncidentNumber = incidentCounterRepository.reserveRangeStart(numberOfIncidents);
+        long lastIncidentNumber = firstIncidentNumber + numberOfIncidents - 1;
         List<String> incidentIds = new ArrayList<>(numberOfIncidents);
 
         ExecutorService executor = Executors.newFixedThreadPool(numberOfIncidents);

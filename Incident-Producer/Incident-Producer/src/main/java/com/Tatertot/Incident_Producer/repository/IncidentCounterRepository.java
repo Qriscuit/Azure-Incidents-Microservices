@@ -15,30 +15,33 @@ public class IncidentCounterRepository {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public long reserveRange(int incidentCount) {
+    public long reserveRangeStart(int incidentCount) {
         if (incidentCount <= 0) {
             throw new IllegalArgumentException(
                     "Incident count must be positive"
             );
         }
 
-        Long lastNumber = jdbcTemplate.queryForObject(
+        Long firstNumber = jdbcTemplate.queryForObject(
                 """
-                UPDATE public.incident_counters
-                SET last_number = last_number + ?
-                WHERE counter_name = 'batch_incident'
-                RETURNING last_number
+                INSERT INTO public.incident_counters (counter_name, last_number)
+                VALUES ('batch_incident', ?)
+                ON CONFLICT (counter_name)
+                DO UPDATE SET last_number =
+                    public.incident_counters.last_number + EXCLUDED.last_number
+                RETURNING last_number - ? + 1
                 """,
                 Long.class,
+                incidentCount,
                 incidentCount
         );
 
-        if (lastNumber == null) {
+        if (firstNumber == null) {
             throw new IllegalStateException(
                     "Database did not return an incident number"
             );
         }
 
-        return lastNumber;
+        return firstNumber;
     }
 }
